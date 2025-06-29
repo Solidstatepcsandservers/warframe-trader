@@ -16,9 +16,15 @@
       const numTrades = document.getElementById('numTrades').value;
       const url = `https://warframe-trade-api.onrender.com/trades?budget=${budget}&trades_to_show=${numTrades}`;
 
-      const res = await fetch(url);
-      const data = await res.json();
-      document.getElementById('results').textContent = JSON.stringify(data, null, 2);
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        const data = await res.json();
+        document.getElementById('results').textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        document.getElementById('results').textContent = "Error fetching trades: " + err.message;
+        console.error(err);
+      }
     }
   </script>
 </body>
