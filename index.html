@@ -1,31 +1,167 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Warframe Trades</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Warframe Trade Profits</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #121212;
+      color: #eee;
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 1rem;
+    }
+    h1 {
+      text-align: center;
+      color: #61dafb;
+    }
+    label {
+      display: block;
+      margin: 1rem 0 0.3rem 0;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: none;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 1rem;
+      background: #61dafb;
+      border: none;
+      color: #121212;
+      font-weight: bold;
+      font-size: 1rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      width: 100%;
+    }
+    button:hover {
+      background: #21a1f1;
+    }
+    table {
+      width: 100%;
+      margin-top: 1.5rem;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #333;
+      text-align: center;
+    }
+    th {
+      background-color: #222;
+    }
+    .loading, .error {
+      margin-top: 1rem;
+      text-align: center;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+    .error {
+      color: #ff4c4c;
+    }
+  </style>
 </head>
 <body>
   <h1>Warframe Trade Profits</h1>
-  <label>Budget (platinum): <input id="budget" type="number" value="10000"></label><br>
-  <label>Number of trades to show: <input id="numTrades" type="number" value="7"></label><br>
-  <button onclick="getTrades()">Show Trades</button>
-  <pre id="results"></pre>
+
+  <label for="budget">Budget (platinum):</label>
+  <input id="budget" type="number" min="1" value="10000" />
+
+  <label for="tradesToShow">Number of trades to show:</label>
+  <input id="tradesToShow" type="number" min="1" max="50" value="7" />
+
+  <button id="fetchBtn">Show Trades</button>
+
+  <div id="message" class="loading" style="display:none;">Loading...</div>
+  <div id="error" class="error" style="display:none;"></div>
+
+  <table id="resultsTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Rank</th>
+        <th>Buy Price</th>
+        <th>Sell Price</th>
+        <th>Spread</th>
+        <th>Units</th>
+        <th>Total Profit</th>
+      </tr>
+    </thead>
+    <tbody id="resultsBody"></tbody>
+  </table>
 
   <script>
-    async function getTrades() {
-      const budget = document.getElementById('budget').value;
-      const numTrades = document.getElementById('numTrades').value;
-      const url = `https://warframe-trade-api.onrender.com/trades?budget=${budget}&trades_to_show=${numTrades}`;
+    const apiBase = "https://warframe-trade-api.onrender.com/trades";
+
+    const budgetInput = document.getElementById("budget");
+    const tradesInput = document.getElementById("tradesToShow");
+    const fetchBtn = document.getElementById("fetchBtn");
+    const messageDiv = document.getElementById("message");
+    const errorDiv = document.getElementById("error");
+    const resultsTable = document.getElementById("resultsTable");
+    const resultsBody = document.getElementById("resultsBody");
+
+    fetchBtn.onclick = async () => {
+      const budget = budgetInput.value;
+      const tradesToShow = tradesInput.value;
+
+      if (!budget || budget <= 0 || !tradesToShow || tradesToShow <= 0) {
+        errorDiv.textContent = "Please enter valid positive numbers.";
+        errorDiv.style.display = "block";
+        return;
+      }
+
+      // Reset UI
+      errorDiv.style.display = "none";
+      resultsTable.style.display = "none";
+      resultsBody.innerHTML = "";
+      messageDiv.style.display = "block";
+      messageDiv.textContent = "Loading...";
 
       try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-        const data = await res.json();
-        document.getElementById('results').textContent = JSON.stringify(data, null, 2);
+        const response = await fetch(`${apiBase}?budget=${budget}&trades_to_show=${tradesToShow}`);
+        if (!response.ok) {
+          throw new Error(`API returned status ${response.status}`);
+        }
+        const data = await response.json();
+
+        if (data.trades.length === 0) {
+          messageDiv.textContent = "No profitable trades found.";
+          return;
+        }
+
+        messageDiv.style.display = "none";
+        resultsTable.style.display = "table";
+
+        data.trades.forEach(trade => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${trade.item}</td>
+            <td>${trade.rank !== null ? trade.rank : "Unknown"}</td>
+            <td>${trade.buy_price}p</td>
+            <td>${trade.sell_price}p</td>
+            <td>${trade.spread}p</td>
+            <td>${trade.units}</td>
+            <td>${trade.total_profit}p</td>
+          `;
+          resultsBody.appendChild(tr);
+        });
       } catch (err) {
-        document.getElementById('results').textContent = "Error fetching trades: " + err.message;
+        messageDiv.style.display = "none";
+        errorDiv.textContent = "Failed to fetch trades. Try again later.";
+        errorDiv.style.display = "block";
         console.error(err);
       }
-    }
+    };
   </script>
 </body>
 </html>
