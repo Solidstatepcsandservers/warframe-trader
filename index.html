@@ -4,100 +4,177 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Warframe Trade Profits</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #121212;
-      color: #eee;
-      max-width: 600px;
-      margin: 2rem auto;
-      padding: 1rem;
-    }
-    h1 {
-      text-align: center;
-      color: #61dafb;
-    }
-    label {
-      display: block;
-      margin: 1rem 0 0.3rem 0;
-      font-weight: bold;
-    }
-    input {
-      width: 100%;
-      padding: 0.5rem;
-      font-size: 1rem;
-      border-radius: 4px;
-      border: none;
+    /* Reset */
+    *, *::before, *::after {
       box-sizing: border-box;
     }
-    button {
-      margin-top: 1rem;
-      background: #61dafb;
-      border: none;
-      color: #121212;
-      font-weight: bold;
-      font-size: 1rem;
-      padding: 0.75rem 1.5rem;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
+
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #e0eafc, #cfdef3);
+      font-family: 'Inter', sans-serif;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      background: #fff;
+      max-width: 600px;
       width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      padding: 2.5rem 3rem;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      margin: 0 0 1.5rem 0;
+      font-weight: 600;
+      font-size: 2rem;
+      text-align: center;
+      color: #1a73e8;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+      font-size: 0.95rem;
+      color: #555;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1.8px solid #ccc;
+      transition: border-color 0.3s ease;
+      outline-offset: 2px;
+    }
+    input[type="number"]:focus {
+      border-color: #1a73e8;
+      outline: none;
+      box-shadow: 0 0 6px rgba(26, 115, 232, 0.4);
+    }
+
+    button {
+      margin-top: 1.6rem;
+      width: 100%;
+      background-color: #1a73e8;
+      border: none;
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 0.85rem;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(26, 115, 232, 0.4);
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+      user-select: none;
     }
     button:hover {
-      background: #21a1f1;
+      background-color: #155ab6;
+      box-shadow: 0 6px 18px rgba(21, 90, 182, 0.6);
     }
-    table {
-      width: 100%;
+    button:active {
+      background-color: #104a93;
+    }
+
+    .message {
       margin-top: 1.5rem;
+      font-weight: 600;
+      font-size: 1rem;
+      text-align: center;
+      color: #666;
+      min-height: 1.3em;
+    }
+    .message.error {
+      color: #d32f2f;
+    }
+
+    table {
+      margin-top: 2rem;
+      width: 100%;
       border-collapse: collapse;
+      font-size: 0.95rem;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 12px rgba(0,0,0,0.05);
     }
+
+    thead {
+      background-color: #1a73e8;
+      color: white;
+    }
+
     th, td {
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid #333;
+      padding: 0.7rem 1rem;
       text-align: center;
     }
-    th {
-      background-color: #222;
+
+    tbody tr:nth-child(even) {
+      background-color: #f8f9fb;
     }
-    .loading, .error {
-      margin-top: 1rem;
-      text-align: center;
-      font-weight: bold;
-      font-size: 1.1rem;
+
+    tbody tr:hover {
+      background-color: #e3f0fd;
+      cursor: default;
     }
-    .error {
-      color: #ff4c4c;
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 2rem 1.5rem;
+      }
+      th, td {
+        padding: 0.5rem 0.6rem;
+        font-size: 0.85rem;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      button {
+        font-size: 1rem;
+        padding: 0.7rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Warframe Trade Profits</h1>
+  <main class="container" role="main" aria-label="Warframe trade profit calculator">
+    <h1>Warframe Trade Profits</h1>
 
-  <label for="budget">Budget (platinum):</label>
-  <input id="budget" type="number" min="1" value="10000" />
+    <label for="budget">Budget (platinum):</label>
+    <input id="budget" type="number" min="1" value="10000" aria-describedby="budget-desc" />
 
-  <label for="tradesToShow">Number of trades to show:</label>
-  <input id="tradesToShow" type="number" min="1" max="50" value="7" />
+    <label for="tradesToShow">Number of trades to show:</label>
+    <input id="tradesToShow" type="number" min="1" max="50" value="7" aria-describedby="trades-desc" />
 
-  <button id="fetchBtn">Show Trades</button>
+    <button id="fetchBtn" aria-live="polite" aria-busy="false">Show Trades</button>
 
-  <div id="message" class="loading" style="display:none;">Loading...</div>
-  <div id="error" class="error" style="display:none;"></div>
+    <div id="message" class="message" role="status" aria-live="polite"></div>
 
-  <table id="resultsTable" style="display:none;">
-    <thead>
-      <tr>
-        <th>Item</th>
-        <th>Rank</th>
-        <th>Buy Price</th>
-        <th>Sell Price</th>
-        <th>Spread</th>
-        <th>Units</th>
-        <th>Total Profit</th>
-      </tr>
-    </thead>
-    <tbody id="resultsBody"></tbody>
-  </table>
+    <table id="resultsTable" style="display:none;" aria-label="Profitable trades">
+      <thead>
+        <tr>
+          <th scope="col">Item</th>
+          <th scope="col">Rank</th>
+          <th scope="col">Buy Price</th>
+          <th scope="col">Sell Price</th>
+          <th scope="col">Spread</th>
+          <th scope="col">Units</th>
+          <th scope="col">Total Profit</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody"></tbody>
+    </table>
+  </main>
 
   <script>
     const apiBase = "https://warframe-trade-api.onrender.com/trades";
@@ -106,43 +183,44 @@
     const tradesInput = document.getElementById("tradesToShow");
     const fetchBtn = document.getElementById("fetchBtn");
     const messageDiv = document.getElementById("message");
-    const errorDiv = document.getElementById("error");
     const resultsTable = document.getElementById("resultsTable");
     const resultsBody = document.getElementById("resultsBody");
 
     fetchBtn.onclick = async () => {
-      const budget = budgetInput.value;
-      const tradesToShow = tradesInput.value;
+      const budget = budgetInput.value.trim();
+      const tradesToShow = tradesInput.value.trim();
 
       if (!budget || budget <= 0 || !tradesToShow || tradesToShow <= 0) {
-        errorDiv.textContent = "Please enter valid positive numbers.";
-        errorDiv.style.display = "block";
+        messageDiv.textContent = "Please enter valid positive numbers.";
+        messageDiv.classList.add("error");
+        resultsTable.style.display = "none";
         return;
       }
 
-      // Reset UI
-      errorDiv.style.display = "none";
+      messageDiv.classList.remove("error");
+      messageDiv.textContent = "Loading trades...";
       resultsTable.style.display = "none";
       resultsBody.innerHTML = "";
-      messageDiv.style.display = "block";
-      messageDiv.textContent = "Loading...";
+      fetchBtn.disabled = true;
+      fetchBtn.setAttribute("aria-busy", "true");
 
       try {
         const response = await fetch(`${apiBase}?budget=${budget}&trades_to_show=${tradesToShow}`);
-        if (!response.ok) {
-          throw new Error(`API returned status ${response.status}`);
-        }
+        if (!response.ok) throw new Error(`API error: ${response.status}`);
+
         const data = await response.json();
 
-        if (data.trades.length === 0) {
-          messageDiv.textContent = "No profitable trades found.";
+        if (!data.trades || data.trades.length === 0) {
+          messageDiv.textContent = "No profitable trades found for this budget.";
+          fetchBtn.disabled = false;
+          fetchBtn.setAttribute("aria-busy", "false");
           return;
         }
 
-        messageDiv.style.display = "none";
+        messageDiv.textContent = "";
         resultsTable.style.display = "table";
 
-        data.trades.forEach(trade => {
+        for (const trade of data.trades) {
           const tr = document.createElement("tr");
           tr.innerHTML = `
             <td>${trade.item}</td>
@@ -154,12 +232,14 @@
             <td>${trade.total_profit}p</td>
           `;
           resultsBody.appendChild(tr);
-        });
-      } catch (err) {
-        messageDiv.style.display = "none";
-        errorDiv.textContent = "Failed to fetch trades. Try again later.";
-        errorDiv.style.display = "block";
-        console.error(err);
+        }
+      } catch (error) {
+        messageDiv.textContent = "Failed to fetch trades. Please try again later.";
+        messageDiv.classList.add("error");
+        console.error(error);
+      } finally {
+        fetchBtn.disabled = false;
+        fetchBtn.setAttribute("aria-busy", "false");
       }
     };
   </script>
