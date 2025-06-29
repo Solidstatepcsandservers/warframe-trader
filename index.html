@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Warframe Trades</title>
+</head>
+<body>
+  <h1>Warframe Trade Profits</h1>
+  <label>Budget (platinum): <input id="budget" type="number" value="10000"></label><br>
+  <label>Number of trades to show: <input id="numTrades" type="number" value="7"></label><br>
+  <button onclick="getTrades()">Show Trades</button>
+  <pre id="results"></pre>
+
+  <script>
+    async function getTrades() {
+      const budget = document.getElementById('budget').value;
+      const numTrades = document.getElementById('numTrades').value;
+      const url = `https://warframe-trade-api.onrender.com/trades?budget=${budget}&trades_to_show=${numTrades}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+      document.getElementById('results').textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
